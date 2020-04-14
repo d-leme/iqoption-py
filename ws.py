@@ -51,9 +51,10 @@ def on_close(ws):
     print("### closed ###")
 
 def heartbeat(ws):
-    while True:
-        time.sleep(1)
-        ws.send(messages.heartbeat(messages.next_count()))
+    pass
+    # while True:
+    #     time.sleep(1)
+    #     ws.send(messages.heartbeat(messages.next_count()))
 
 
 headers = {
@@ -87,9 +88,11 @@ if __name__ == "__main__":
 
     thread.start_new_thread(heartbeat, (ws,))
 
-    active = actives.get_active_by_description('USD/CHF (OTC)')
+    active = actives.get_active_by_description('EUR/USD')
     ws.send(messages.subscribe_candles(messages.next_count(), active['id'], 5))
 
+    time.sleep(1)
+    ws.send(json.dumps({"name":"sendMessage","request_id":"15","msg":{"name":"register-token","version":"1.0","body":{"app_id":9,"provider":"google","token":"dpfJDY4XH7E:APA91bFf1X1kQ8JuQgsnWhEUOD5T4PnHpukNtvgazj_tcGkpIynNgMl408FrN4Vb-jrqa7BnZBvlsU_EVuGg0YYW5BjYokoCKI14MjIY0sC8nEgIxLj3bo4mqliO3uiqfsesEy-RQ2dN"}}}))
     time.sleep(1)
 
     ws.send(messages.get_balance(
@@ -103,9 +106,9 @@ if __name__ == "__main__":
     t_list[6] = 0
     t_list[7] = 0
     t_list[8] = 0
-    t = time.mktime(tuple(t_list))
+    t = int(time.mktime(tuple(t_list)))
 
-    call = messages.call(messages.next_count(), balances['practice'], active['id'], active['type'], t, curr_value * 1000000, 99)
+    call = messages.call(f'{messages.next_count()}', balances['practice'], active['id'], active['type'], t, int(curr_value * 1000000), 60)
     print(f'Call {call}')
 
     ws.send(call)

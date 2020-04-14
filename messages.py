@@ -3,6 +3,7 @@ import simplejson as json
 
 sent_count = 0
 
+
 def next_count():
     global sent_count
 
@@ -11,6 +12,7 @@ def next_count():
     sent_count += 1
 
     return nr
+
 
 def profile(ssid):
     # TODO: generate ramdom number after underscore
@@ -34,5 +36,6 @@ def call(request_id, balance_id, active_id, option_type, expire, value, profit_p
 def put(request_id, balance_id, active_id, option_type, expire, value, profit_percent):
     return json.dumps({"name": "sendMessage", "request_id": request_id, "msg": {"name": "binary-options.open-option", "version": "1.0", "body": {"user_balance_id": balance_id, "active_id": active_id, "option_type_id": option_type, "direction": "put", "expired": expire, "refund_value": 0, "price": 1.0, "value": value, "profit_percent": profit_percent}}})
 
+
 def heartbeat(request_id):
-    return json.dumps({"name":"heartbeat","request_id":request_id,"msg":{"userTime": int(time.time()),"heartbeatTime":int(time.time())}})
+    return json.dumps({"name": "heartbeat", "request_id": request_id, "msg": {"userTime": int(time.time()), "heartbeatTime": int(time.time())}})

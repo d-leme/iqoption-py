@@ -3,6 +3,11 @@ actives = [
         'id': 78,
         'description' : 'USD/CHF (OTC)',
         'type': 3
+    },
+    {
+        'id': 1,
+        'description' : 'EUR/USD',
+        'type': 3
     }
 ]
 
