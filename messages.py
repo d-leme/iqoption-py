@@ -25,6 +25,10 @@ def subscribe_candles(request_id, active_id, size):
     return json.dumps({"name": "subscribeMessage", "request_id": f's_{request_id}', "msg": {"name": "candle-generated", "params": {"routingFilters": {"active_id": active_id, "size": size}}}})
 
 
+def subscribe_active_callback(request_id, active, expires):
+    return json.dumps({"name":"subscribeMessage","request_id":"s_202","msg":{"name":"spot-buyback-quote-generated","version":"1.0","params":{"routingFilters":{"active":1,"underlying":"EURUSD","timestamp":expires}}}})
+
+
 def get_balance(request_id, type_ids):
     return json.dumps({"name": "sendMessage", "request_id": request_id, "msg": {"name": "get-balances", "version": "1.0", "body": {"types_ids": type_ids}}})
 

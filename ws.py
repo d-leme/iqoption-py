@@ -40,6 +40,12 @@ def on_message(ws, message):
     if message_obj['name'] == 'timeSync' or message_obj['name'] == 'heartbeat':
         return
 
+    if(message_obj['name'] == "socket-option-closed"):
+        print("\n\nOption closed\n")
+        print(message)
+        print("\n")
+        ws.close()
+
     print("\n" + message + "\n")
 
 
@@ -51,24 +57,9 @@ def on_close(ws):
     print("### closed ###")
 
 def heartbeat(ws):
-    pass
-    # while True:
-    #     time.sleep(1)
-    #     ws.send(messages.heartbeat(messages.next_count()))
-
-
-headers = {
-    'Pragma': 'no-cache',
-    'Origin': 'https://iqoption.com',
-    'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Sec-WebSocket-Key': 'IOyTGHyoyoq+9D4xKR6Y6Q==',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
-    'Upgrade': 'websocket',
-    'Cache-Control': 'no-cache',
-    'Cookie': '_ga=GA1.2.372272380.1574015742; _ym_d=1574015744; _ym_uid=1574015744754354880; pll_language=en; ssid=7183f6a9f2ea4555c71a7fabcc0f9cfc; referrer=https://www.google.com/; landing=iqoption.com; identity=901b317a53bee6beeee02271bce03cbf5901cff560e12569d273b252ee798ce14bc5e9caca31915d3c1c3ce982bef395270bedd59a8408e07edcb6ad1b024201025851a073e95203b8776bff3f8619a6f762342f951c59eb6038b0920f0a14e53510e2db9c6d1a685dc48d85b878245275a5c4a3619782fa3f49464f0d84f665536d2fa1ae20d0200831ff4e3aad6d9c272da0bd9115d8e9e3d2689c8d862bebae7bbfa37af986cb19cf02bd11b27500f32ab591465630e13d755b4816b7b5da; lang=en_US; _gid=GA1.2.940076778.1586613076; init_url=https://iqoption.com/en; __uat=c9c64e071d2853bc7906c017a231ad1cc46ab630; device_id=186f7b952656e3ba6facdaf51dbbc3d2; _ym_isad=1; _uetsid=_uetf7583f62-169b-df0a-41b2-90d1f2c9cf53; _gat_UA-44367767-1=1; _ym_visorc_22669009=b; _gat=1; _gat_tracker=1; platform=9; platform_version=1752.2.9413.release',
-    'Connection': 'Upgrade',
-    'Sec-WebSocket-Version': '13'
-}
+    while True:
+        time.sleep(1)
+        ws.send(messages.heartbeat(messages.next_count()))
 
 
 if __name__ == "__main__":
@@ -76,8 +67,7 @@ if __name__ == "__main__":
     ws = websocket.WebSocketApp("wss://iqoption.com/echo/websocket",
                                 on_message=on_message,
                                 on_error=on_error,
-                                on_close=on_close,
-                                header=headers)
+                                on_close=on_close)
 
     thread.start_new_thread(ws.run_forever, ())
     time.sleep(1)
@@ -108,10 +98,12 @@ if __name__ == "__main__":
     t_list[8] = 0
     t = int(time.mktime(tuple(t_list)))
 
-    call = messages.call(f'{messages.next_count()}', balances['practice'], active['id'], active['type'], t, int(curr_value * 1000000), 60)
-    print(f'Call {call}')
+    call_msg = messages.call(f'{messages.next_count()}', balances['practice'], active['id'], active['type'], t, int(curr_value * 1000000), 57)
+    ws.send(call_msg)
+    
+    time.sleep(.05)
+    callback_msg = messages.subscribe_active_callback(f'{messages.next_count()}', active['id'], t)
 
-    ws.send(call)
     
     input('')
 
