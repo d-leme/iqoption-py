@@ -1,18 +1,6 @@
 import time
+import _thread as thread
 import simplejson as json
-
-sent_count = 0
-
-
-def next_count():
-    global sent_count
-
-    nr = sent_count
-
-    sent_count += 1
-
-    return nr
-
 
 def profile(ssid):
     # TODO: generate ramdom number after underscore
@@ -43,3 +31,24 @@ def put(request_id, balance_id, active_id, option_type, expire, value, profit_pe
 
 def heartbeat(request_id):
     return json.dumps({"name": "heartbeat", "request_id": request_id, "msg": {"userTime": int(time.time()), "heartbeatTime": int(time.time())}})
+
+
+class MessageDispatcher():
+    def __init__(self, conn):
+        self.conn = conn
+
+    def dispatch(self, message):
+        self.conn.send(message)
+
+    def sleep_then_dispatch(self, message, in_sec):
+        time.sleep(in_sec)
+        self.dispatch(message)
+
+
+    def dispatch_every(self, get_message_fn, every_sec):
+        def run_in_background():
+            while True:
+                time.sleep(every_sec)
+                self.dispatch(get_message_fn())
+
+        thread.start_new_thread(run_in_background, ())

@@ -4,6 +4,7 @@ import simplejson as json
 import _thread as thread
 import messages
 import actives
+from store import Store
 
 user_id = 54515967
 real_balance_id = 264298307
@@ -25,6 +26,7 @@ practice_account_type = 4
 
 curr_time = 0
 curr_value = 0
+store = Store()
 
 def on_message(ws, message):
     message_obj = json.loads(message)
@@ -59,7 +61,7 @@ def on_close(ws):
 def heartbeat(ws):
     while True:
         time.sleep(1)
-        ws.send(messages.heartbeat(messages.next_count()))
+        ws.send(messages.heartbeat(store.next_request_id()))
 
 
 if __name__ == "__main__":
@@ -79,14 +81,14 @@ if __name__ == "__main__":
     thread.start_new_thread(heartbeat, (ws,))
 
     active = actives.get_active_by_description('EUR/USD')
-    ws.send(messages.subscribe_candles(messages.next_count(), active['id'], 5))
+    ws.send(messages.subscribe_candles(store.next_request_id(), active.id, 5))
 
     time.sleep(1)
     ws.send(json.dumps({"name":"sendMessage","request_id":"15","msg":{"name":"register-token","version":"1.0","body":{"app_id":9,"provider":"google","token":"dpfJDY4XH7E:APA91bFf1X1kQ8JuQgsnWhEUOD5T4PnHpukNtvgazj_tcGkpIynNgMl408FrN4Vb-jrqa7BnZBvlsU_EVuGg0YYW5BjYokoCKI14MjIY0sC8nEgIxLj3bo4mqliO3uiqfsesEy-RQ2dN"}}}))
     time.sleep(1)
 
     ws.send(messages.get_balance(
-        messages.next_count(), [account_types['real'], account_types['practice']]))
+        store.next_request_id(), [account_types['real'], account_types['practice']]))
 
     input('')
     t_list = list(time.gmtime(int(curr_time / 1000)))
@@ -98,11 +100,11 @@ if __name__ == "__main__":
     t_list[8] = 0
     t = int(time.mktime(tuple(t_list)))
 
-    call_msg = messages.call(f'{messages.next_count()}', balances['practice'], active['id'], active['type'], t, int(curr_value * 1000000), 57)
+    call_msg = messages.call(f'{store.next_request_id()}', balances['practice'], active.id, active.type.value, t, int(curr_value * 1000000), 57)
     ws.send(call_msg)
     
     time.sleep(.05)
-    callback_msg = messages.subscribe_active_callback(f'{messages.next_count()}', active['id'], t)
+    callback_msg = messages.subscribe_active_callback(f'{store.next_request_id()}', active.id, t)
 
     
     input('')
