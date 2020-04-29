@@ -3,16 +3,17 @@ import time
 import _thread as thread
 
 class Client():
-    def __init__(self, conn, handlers):
+    def __init__(self, conn, strategies):
         self.conn = conn
-        self.handlers = handlers
+        self.strategies = strategies
 
     def __exec_handler(self, message):
-        found_handlers = [
-            h for h in self.handlers if h.message_key == message['name']]
+        for strategy in self.strategies:
+            found_handlers = [
+                h for h in strategy.handlers if h.message_key == message['name']]
 
-        for h in found_handlers:
-            h.handle(message)
+            for h in found_handlers:
+                h.handle(message)
 
     def _on_message(self):
         return lambda _, message: self.__exec_handler(json.loads(message))
@@ -24,7 +25,7 @@ class Client():
         return lambda _: self.__exec_handler({"name": 'connection-closed'})
 
     def _on_error(self):
-        return lambda _, error: self.__exec_handler({"name": 'error_occured', "error": error})
+        return lambda _, error: self.__exec_handler({"name": 'error-occured', "error": error})
 
     def run_in_background(self):
         self.conn.on_message = self._on_message()

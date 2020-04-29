@@ -1,3 +1,4 @@
+import sys
 import websocket
 import time
 import simplejson as json
@@ -6,7 +7,7 @@ from store import Store
 import actives
 import messages
 from messages import MessageDispatcher
-from handlers import TimeSyncMessageHandler, ConnectionClosedMessageHandler, SubscribeCandleGeneratedMessageHandler, ConnectionOpennedMessageHandler
+from boilerbands_strategy import BoilerBandsStrategy
 from iqoption import Client
 
 user_id = 54515967
@@ -26,6 +27,14 @@ account_types = {
 real_account_type = 1
 practice_account_type = 4
 
+def hold_context():
+    while True:
+        try:
+            pass
+        except KeyboardInterrupt:
+            print('Shutdown requested...exiting')
+            return
+
 
 if __name__ == "__main__":
 
@@ -37,15 +46,13 @@ if __name__ == "__main__":
     store = Store()
     store.set_ssid('7183f6a9f2ea4555c71a7fabcc0f9cfc')
 
-    timeSyncHandler = TimeSyncMessageHandler(dispatcher, store)
-    connectionClosedHandler = ConnectionClosedMessageHandler(dispatcher, store)
-    subscribeCandleGeneratedHandler = SubscribeCandleGeneratedMessageHandler(dispatcher, store)
-    connectionOpennedHandler = ConnectionOpennedMessageHandler(dispatcher, store)
-    handlers = [timeSyncHandler, connectionClosedHandler, subscribeCandleGeneratedHandler, connectionOpennedHandler]
+    strategy = BoilerBandsStrategy(dispatcher, store)
 
-    client = Client(ws, handlers)
+    client = Client(ws, [strategy])
     client.run_in_background()
 
-    input('')
+    hold_context()
 
+    # TODO: fix exception when trying send message with connection is closed 
     client.close()
+    sys.exit(0)
