@@ -1,7 +1,7 @@
 import messages
 import actives
 
-class BoilerBandsStrategy():
+class BollingerBandsStrategy():
     def __init__(self, dispatcher, store):
         self.__configure_handlers(dispatcher, store)
 

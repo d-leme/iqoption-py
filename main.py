@@ -7,7 +7,7 @@ from store import Store
 import actives
 import messages
 from messages import MessageDispatcher
-from boilerbands_strategy import BoilerBandsStrategy
+from boilerbands_strategy import BollingerBandsStrategy
 from iqoption import Client
 
 user_id = 54515967
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     store = Store()
     store.set_ssid('7183f6a9f2ea4555c71a7fabcc0f9cfc')
 
-    strategy = BoilerBandsStrategy(dispatcher, store)
+    strategy = BollingerBandsStrategy(dispatcher, store)
 
     client = Client(ws, [strategy])
     client.run_in_background()
